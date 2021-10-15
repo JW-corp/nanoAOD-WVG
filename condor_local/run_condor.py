@@ -9,6 +9,7 @@ import json
 
 parser = argparse.ArgumentParser(description='condor for postproc')
 parser.add_argument('-f', dest='file', default='', help='json file input')
+parser.add_argument('-isdata', dest='isdata', default=False,type=bool, help='json file input')
 args = parser.parse_args()
 
 with open(args.file, "r") as f:
@@ -16,7 +17,7 @@ with open(args.file, "r") as f:
 	f.close()
 
 initial_path = os.getcwd()
-
+isdata = args.isdata
 
 import glob
 # Dataset Loop
@@ -24,7 +25,27 @@ for dataset in jsons:
 	
 	os.chdir(initial_path)
 
-	datasetname = dataset['name'].split('/')[9].split('_')[0] + '_' + dataset['year']
+
+	if not isdata:
+
+		if dataset['name'].startswith("/x5"):
+			datasetname = 'WZG_2018'
+
+		else:
+			datasetname = dataset['name'].split('/')[9].split('_')[0] + '_' + dataset['year']
+
+			if datasetname.startswith("GluGluToContinTo"):
+				datasetname = 'ZZgg_2018'
+	else:
+		run_name  = dataset['name'].split('/')[8]
+		data_name = dataset['name'].split('/')[9]
+		year = dataset['year']
+		
+		datasetname = data_name + '_' + run_name + '_' + year
+		
+
+	
+
 	os.system("mkdir -p "+datasetname+"/log")
 	os.chdir(datasetname)
 
@@ -73,7 +94,7 @@ for dataset in jsons:
 			# set NanoAOD tool and run jobs
 			f.write("cd PhysicsTools/NanoAODTools/nanoAOD-WVG/WZG_selector\n")
 			f.write("python WZG_postproc.py -f "+filepath+"\n")
-			f.write("mv *.root ${initial_path}")
+			f.write("cp *.root ${initial_path}")
 			f.close()
 
 
