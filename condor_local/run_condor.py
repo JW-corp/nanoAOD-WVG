@@ -9,7 +9,6 @@ import json
 
 parser = argparse.ArgumentParser(description='condor for postproc')
 parser.add_argument('-f', dest='file', default='', help='json file input')
-parser.add_argument('-isdata', dest='isdata', default=False,type=bool, help='json file input')
 args = parser.parse_args()
 
 with open(args.file, "r") as f:
@@ -17,7 +16,6 @@ with open(args.file, "r") as f:
 	f.close()
 
 initial_path = os.getcwd()
-isdata = args.isdata
 
 import glob
 # Dataset Loop
@@ -26,26 +24,36 @@ for dataset in jsons:
 	os.chdir(initial_path)
 
 
+	## data/MC type setting
+	isdata=False # initilize isdata 
+	period='B' # initialize period
+	if dataset['name'] !='MC':
+		isdata=True
+
+	# MC case
 	if not isdata:
 
+		# Private signal case
 		if dataset['name'].startswith("/x5"):
 			datasetname = 'WZG_2018'
 
+		# General case
 		else:
 			datasetname = dataset['name'].split('/')[9].split('_')[0] + '_' + dataset['year']
-
+			
+			# ZZgg case
 			if datasetname.startswith("GluGluToContinTo"):
 				datasetname = 'ZZgg_2018'
+	# Data case
 	else:
-		run_name  = dataset['name'].split('/')[8]
-		data_name = dataset['name'].split('/')[9]
-		year = dataset['year']
-		
-		datasetname = data_name + '_' + run_name + '_' + year
+		run_name    = dataset['name'].split('/')[8]
+		data_name   = dataset['name'].split('/')[9]
+		period      = run_name[7]
+		datasetname = data_name + '_' + run_name
 		
 
 	
-
+	## make save directory
 	os.system("mkdir -p "+datasetname+"/log")
 	os.chdir(datasetname)
 
@@ -53,12 +61,13 @@ for dataset in jsons:
 	i = 0
 	for i,filepath in enumerate(flist):
 
-		
+		# Prepare submit	
 		filename = filepath.split('/')[-1].split('_')[0]
-		print("##"*20)
-		print("dataset: ",datasetname)
-		print("fname: ",filename)
-		print("path: ",filepath)
+		#print("##"*20)
+		#print("dataset: ",datasetname)
+		#print("fname: ",filename)
+		#print("path: ",filepath)
+
 
 
 		## -->>  submit.jds script
@@ -73,7 +82,6 @@ for dataset in jsons:
 			f.write("queue 1")
 		f.close()
 		print "file",str(i),filename," submit code prepared" 
-
 
 
 
@@ -93,8 +101,17 @@ for dataset in jsons:
 
 			# set NanoAOD tool and run jobs
 			f.write("cd PhysicsTools/NanoAODTools/nanoAOD-WVG/WZG_selector\n")
-			f.write("python WZG_postproc.py -f "+filepath+"\n")
-			f.write("cp *.root ${initial_path}")
+			f.write("[[ -d " + datasetname + " ]]" + " || " +  " mkdir " +  datasetname + "\n")
+
+			if isdata:
+				f.write("python WZG_postproc.py -f" + " " + filepath + " " + "-d" + " " +\
+				"-dataset_name" + " " + datasetname + " " +  "-p" + " " +  period + "\n")
+			else:
+				f.write("python WZG_postproc.py -f" + " " + filepath + " " +\
+				"-dataset_name" + " " + datasetname + " " +  "-p" + " " +  period + "\n")
+				
+		
+			f.write("cp " + datasetname + "/*.root ${initial_path}")
 			f.close()
 
 

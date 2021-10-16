@@ -28,6 +28,7 @@ parser.add_argument('-m', dest='mode', default='local', help='runmode local/cond
 parser.add_argument('-y', dest='year', default='2018', help='year')
 parser.add_argument('-d', dest='isdata',action='store_true',default=False)
 parser.add_argument('-p', dest='period',default="B", help="Run period, only work for data")
+parser.add_argument('-dataset_name', dest='dataset_name',default="B", help="Run period, only work for data")
 args = parser.parse_args()
 
 # print ("mode: ", args.mode)
@@ -105,7 +106,20 @@ if args.isdata and args.year=='2018' and args.period=='D' and ('MuonEG' in infil
         runsAndLumis_special[rstart].append([int(lstart), int(lstop)])
     jsoninput = runsAndLumis_special
 
-p=PostProcessor(".",infilelist,
+
+print("processing..: ",infilelist)
+
+
+# Check weather the output directory exists
+isExist = os.path.exists(args.dataset_name)
+
+# If not.. mkdir
+if not isExist:
+	os.makedirs(args.dataset_name)
+
+
+#p=PostProcessor(".",infilelist, # original
+p=PostProcessor(args.dataset_name,infilelist,  # new: specify the directory following name of dataset
                 branchsel="WZG_input_branch.txt",
                 modules=Modules,
                 justcount=False,
