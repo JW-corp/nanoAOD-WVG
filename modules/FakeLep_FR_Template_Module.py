@@ -11,7 +11,7 @@ from PhysicsTools.NanoAODTools.postprocessing.tools import deltaR
 
 from PhysicsTools.NanoAODTools.postprocessing.tools import deltaPhi
 
-class FakeLeptonProducer(Module):
+class FR_FakeLeptonProducer(Module):
     def __init__(self):
         pass
     def beginJob(self):
@@ -38,6 +38,15 @@ class FakeLeptonProducer(Module):
         self.out.branch("lepton_sc_eta",  "F")
         self.out.branch("is_lepton_tight",  "B")
         self.out.branch("gen_weight",  "F")
+        self.out.branch("Muon_ID_Weight", "F")
+        self.out.branch("Muon_ID_Weight_UP", "F")
+        self.out.branch("Muon_ID_Weight_DOWN", "F")
+        self.out.branch("Electron_ID_Weight", "F")
+        self.out.branch("Electron_ID_Weight_UP", "F")
+        self.out.branch("Electron_ID_Weight_DOWN", "F")
+        self.out.branch("Electron_RECO_Weight", "F")
+        self.out.branch("Electron_RECO_Weight_UP", "F")
+        self.out.branch("Electron_RECO_Weight_DOWN", "F")
     def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         pass
     def analyze(self, event):
@@ -49,19 +58,11 @@ class FakeLeptonProducer(Module):
 
         tight_muons = []
 
-        fake_rate_denominator_muons = []
-
-        other_loose_muons = []
-        
         tight_electrons = []
 
-        fake_rate_denominator_electrons = []
-        
-        other_loose_electrons = []
+        veto_muons = []
 
-        tight_photons = []
-
-        tight_jets = []
+        veto_electrons = []
 
         # if event.MET_pt > 20:
         # if event.MET_pt > 30:
@@ -71,7 +72,7 @@ class FakeLeptonProducer(Module):
         # the numerator is extracted by a different pfRelIso04_all in further analysis
         for i in range(0,len(muons)):
 
-            if muons[i].pt < 10:
+            if event.Muon_corrected_pt[i] < 10:
             # if muons[i].pt < 20:
                 continue
 
@@ -81,19 +82,55 @@ class FakeLeptonProducer(Module):
             if muons[i].tightId and muons[i].pfRelIso04_all < 0.4:
                 tight_muons.append(i)
 
+            if muons[i].looseId and muons[i].pfRelIso04_all < 0.4:
+                veto_muons.append(i)
+
+        Muon_ID_Weight = 1
+        Muon_ID_Weight_UP = 1
+        Muon_ID_Weight_DOWN = 1
+        if hasattr(event, "Muon_CutBased_TightID_SF"):
+            for i in tight_muons:
+                Muon_ID_Weight = Muon_ID_Weight * event.Muon_CutBased_TightID_SF[i]
+                Muon_ID_Weight_UP = max(Muon_ID_Weight_UP * (event.Muon_CutBased_TightID_SF[i] + event.Muon_CutBased_TightID_SFerr[i]), Muon_ID_Weight_UP * (event.Muon_CutBased_TightID_SF[i] - event.Muon_CutBased_TightID_SFerr[i]))
+                Muon_ID_Weight_DOWN = min(Muon_ID_Weight_DOWN * (event.Muon_CutBased_TightID_SF[i] + event.Muon_CutBased_TightID_SFerr[i]), Muon_ID_Weight_DOWN * (event.Muon_CutBased_TightID_SF[i] - event.Muon_CutBased_TightID_SFerr[i]))
+            for i in veto_muons:
+                Muon_ID_Weight = Muon_ID_Weight * event.Muon_CutBased_LooseID_SF[i]
+                Muon_ID_Weight_UP = max(Muon_ID_Weight_UP * (event.Muon_CutBased_LooseID_SF[i] + event.Muon_CutBased_LooseID_SFerr[i]), Muon_ID_Weight_UP * (event.Muon_CutBased_LooseID_SF[i] - event.Muon_CutBased_LooseID_SFerr[i]))
+                Muon_ID_Weight_DOWN = min(Muon_ID_Weight_DOWN * (event.Muon_CutBased_LooseID_SF[i] + event.Muon_CutBased_LooseID_SFerr[i]), Muon_ID_Weight_DOWN * (event.Muon_CutBased_LooseID_SF[i] - event.Muon_CutBased_LooseID_SFerr[i]))
+
+        # veto electrons will be taken into account with tight_electrons and fakeable electrons to do the veto
+        if veto_muons > 0:
+            return False
+
         for i in range (0,len(electrons)):
 
             if electrons[i].pt < 10:
                 continue
             
-            if abs(electrons[i].eta+ electrons[i].deltaEtaSC) > 2.5:
+            if abs(electrons[i].eta + electrons[i].deltaEtaSC) > 2.5:
                 continue
 
-        # here the tight muons actually means fake_rate_denominator_muons
+        # here the tight elecrtons actually means fake_rate_denominator_electrons
         # the numerator is extracted by a different cutBased in further analysis
             if (abs(electrons[i].eta + electrons[i].deltaEtaSC) < 1.479 and abs(electrons[i].dz) < 0.1 and abs(electrons[i].dxy) < 0.05) or (abs(electrons[i].eta + electrons[i].deltaEtaSC) > 1.479 and abs(electrons[i].dz) < 0.2 and abs(electrons[i].dxy) < 0.1):
                 if electrons[i].cutBased >= 1:
                     tight_electrons.append(i)
+
+        Electron_ID_Weight = 1
+        Electron_ID_Weight_UP = 1
+        Electron_ID_Weight_DOWN = 1
+        Electron_RECO_Weight = 1
+        Electron_RECO_Weight_UP = 1
+        Electron_RECO_Weight_DOWN = 1
+        # Consider only Veto ID
+        if hasattr(event, "Electron_RECO_SF"):
+            for i in tight_electrons:
+                Electron_ID_Weight = Electron_ID_Weight * event.Electron_CutBased_VetoID_SF[i]
+                Electron_ID_Weight_UP = max(Electron_ID_Weight_UP * (event.Electron_CutBased_VetoID_SF[i] + event.Electron_CutBased_VetoID_SFerr[i]), Electron_ID_Weight * (event.Electron_CutBased_VetoID_SF[i] - event.Electron_CutBased_VetoID_SFerr[i]))
+                Electron_ID_Weight_DOWN = min(Electron_ID_Weight_DOWN * (event.Electron_CutBased_VetoID_SF[i] + event.Electron_CutBased_VetoID_SFerr[i]), Electron_ID_Weight * (event.Electron_CutBased_VetoID_SF[i] - event.Electron_CutBased_VetoID_SFerr[i]))
+                Electron_RECO_Weight = Electron_RECO_Weight * event.Electron_RECO_SF[i]
+                Electron_RECO_Weight_UP = max(Electron_RECO_Weight_UP * (event.Electron_RECO_SF[i] + event.Electron_RECO_SFerr[i]), Electron_RECO_Weight_UP * (event.Electron_RECO_SF[i] - event.Electron_RECO_SFerr[i]))
+                Electron_RECO_Weight_DOWN = min(Electron_RECO_Weight_DOWN * (event.Electron_RECO_SF[i] + event.Electron_RECO_SFerr[i]), Electron_RECO_Weight_DOWN * (event.Electron_RECO_SF[i] - event.Electron_RECO_SFerr[i]))
 
         if len(tight_muons) == 1 and len(tight_electrons)  == 0:
 
@@ -249,4 +286,65 @@ class FakeLeptonProducer(Module):
 
         return True
 
-FakeLeptonModule = lambda : FakeLeptonProducer()
+class FR_FakeLep_first_Template_Producer(Module):
+    def __init__(self):
+        pass
+    def beginFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
+        self.out = wrappedOutputTree
+        self.out.branch("nLooseNotTightLep","I")
+        self.out.branch("nTightLep","I")
+        pass
+
+    def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
+        pass
+
+    def analyze(self, event):
+        """process event, return True (go to next module) or False (fail, go to next event)"""
+        electrons = Collection(event, "Electron")
+        muons = Collection(event, "Muon")
+        # photons = Collection(event, "Photon")
+        tight_photons = []
+        tight_electrons = [] 
+        tight_muons = [] 
+        loose_but_not_tight_muons = []
+        loose_but_not_tight_electrons = []
+
+        if (event.nElectron + event.nMuon) < 2:
+            return False
+
+        for i in range (0,len(muons)):
+            if event.Muon_corrected_pt[i] < 10:
+                continue
+            if abs(muons[i].eta) > 2.4:
+                continue
+            # combine tight and fakeable object here for speeding up
+            if muons[i].tightId and muons[i].pfRelIso04_all < 0.4:
+                tight_muons.append(i)
+            elif muons[i].looseId and muons[i].pfRelIso04_all < 0.4:
+                loose_but_not_tight_muons.append(i)
+
+        for i in range(0,len(electrons)):
+            if electrons[i].pt < 10:
+                continue
+            if abs(electrons[i].eta + electrons[i].deltaEtaSC) >  2.5:
+                continue
+            if (abs(electrons[i].eta + electrons[i].deltaEtaSC) < 1.479 and abs(electrons[i].dz) < 0.1 and abs(electrons[i].dxy) < 0.05) or (abs(electrons[i].eta + electrons[i].deltaEtaSC) > 1.479 and abs(electrons[i].dz) < 0.2 and abs(electrons[i].dxy) < 0.1):
+                if electrons[i].cutBased >= 3:
+                    tight_electrons.append(i)
+                elif electrons[i].cutBased >= 1:
+                    loose_but_not_tight_electrons.append(i)
+
+        if len(loose_but_not_tight_muons) > 0:
+            return False
+        if (len(tight_electrons) + len(tight_muons) + len(loose_but_not_tight_electrons) + len(loose_but_not_tight_muons)) > 1: 
+            return False
+
+        self.out.fillBranch("nLooseNotTightLep", len(loose_but_not_tight_muons)+len(loose_but_not_tight_electrons))
+        self.out.fillBranch("nTightLep", len(tight_muons)+len(tight_electrons))
+
+        return True
+
+# define modules using the syntax 'name = lambda : constructor' to avoid having them loaded when not needed
+
+FRFakeLep_first_Template_Module = lambda : FR_FakeLep_first_Template_Producer()
+FRFakeLeptonModule = lambda : FR_FakeLeptonProducer()

@@ -57,10 +57,22 @@ class FakePho_Producer(Module):
         self.out.branch("WZG_photon_mass",  "F")
         self.out.branch("WZG_photon_genPartFlav",  "i")
         self.out.branch("WZG_photon_vidNestedWPBitmap",  "L")
+        self.out.branch("WZG_photon_pfRelIso03_chg", "F")
+        self.out.branch("WZG_photon_sieie", "F")
         self.out.branch("WZG_dileptonmass",  "F")
         self.out.branch("WZG_trileptonmass",  "F")
         self.out.branch("WZG_mlla",  "F")
         self.out.branch("WZG_MET",  "F")
+
+        self.out.branch("Muon_ID_Weight", "F")
+        self.out.branch("Muon_ID_Weight_UP", "F")
+        self.out.branch("Muon_ID_Weight_DOWN", "F")
+        self.out.branch("Electron_ID_Weight", "F")
+        self.out.branch("Electron_ID_Weight_UP", "F")
+        self.out.branch("Electron_ID_Weight_DOWN", "F")
+        self.out.branch("Electron_RECO_Weight", "F")
+        self.out.branch("Electron_RECO_Weight_UP", "F")
+        self.out.branch("Electron_RECO_Weight_DOWN", "F")
 
     def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         pass
@@ -101,6 +113,18 @@ class FakePho_Producer(Module):
             elif muons[i].looseId and muons[i].pfRelIso04_all < 0.4:
                 loose_but_not_tight_muons.append(i)
 
+        Muon_ID_Weight = 1
+        Muon_ID_Weight_UP = 1
+        Muon_ID_Weight_DOWN = 1
+        if hasattr(event, "Muon_CutBased_TightID_SF"):
+            for i in tight_muons:
+                Muon_ID_Weight = Muon_ID_Weight * event.Muon_CutBased_TightID_SF[i]
+                Muon_ID_Weight_UP = max(Muon_ID_Weight_UP * (event.Muon_CutBased_TightID_SF[i] + event.Muon_CutBased_TightID_SFerr[i]), Muon_ID_Weight_UP * (event.Muon_CutBased_TightID_SF[i] - event.Muon_CutBased_TightID_SFerr[i]))
+                Muon_ID_Weight_DOWN = min(Muon_ID_Weight_DOWN * (event.Muon_CutBased_TightID_SF[i] + event.Muon_CutBased_TightID_SFerr[i]), Muon_ID_Weight_DOWN * (event.Muon_CutBased_TightID_SF[i] - event.Muon_CutBased_TightID_SFerr[i]))
+            for i in loose_but_not_tight_muons:
+                Muon_ID_Weight = Muon_ID_Weight * event.Muon_CutBased_LooseID_SF[i]
+                Muon_ID_Weight_UP = max(Muon_ID_Weight_UP * (event.Muon_CutBased_LooseID_SF[i] + event.Muon_CutBased_LooseID_SFerr[i]), Muon_ID_Weight_UP * (event.Muon_CutBased_LooseID_SF[i] - event.Muon_CutBased_LooseID_SFerr[i]))
+                Muon_ID_Weight_DOWN = min(Muon_ID_Weight_DOWN * (event.Muon_CutBased_LooseID_SF[i] + event.Muon_CutBased_LooseID_SFerr[i]), Muon_ID_Weight_DOWN * (event.Muon_CutBased_LooseID_SF[i] - event.Muon_CutBased_LooseID_SFerr[i]))
 
         # selection on electrons
         for i in range(0,len(electrons)):
@@ -114,6 +138,27 @@ class FakePho_Producer(Module):
                 elif electrons[i].cutBased >= 1:
                     loose_but_not_tight_electrons.append(i)
 
+        Electron_ID_Weight = 1
+        Electron_ID_Weight_UP = 1
+        Electron_ID_Weight_DOWN = 1
+        Electron_RECO_Weight = 1
+        Electron_RECO_Weight_UP = 1
+        Electron_RECO_Weight_DOWN = 1
+        if hasattr(event, "Electron_RECO_SF"):
+            for i in tight_electrons:
+                Electron_ID_Weight = Electron_ID_Weight * event.Electron_CutBased_MediumID_SF[i]
+                Electron_ID_Weight_UP = max(Electron_ID_Weight_UP * (event.Electron_CutBased_MediumID_SF[i] + event.Electron_CutBased_MediumID_SFerr[i]), Electron_ID_Weight * (event.Electron_CutBased_MediumID_SF[i] - event.Electron_CutBased_MediumID_SFerr[i]))
+                Electron_ID_Weight_DOWN = min(Electron_ID_Weight_DOWN * (event.Electron_CutBased_MediumID_SF[i] + event.Electron_CutBased_MediumID_SFerr[i]), Electron_ID_Weight * (event.Electron_CutBased_MediumID_SF[i] - event.Electron_CutBased_MediumID_SFerr[i]))
+                Electron_RECO_Weight = Electron_RECO_Weight * event.Electron_RECO_SF[i]
+                Electron_RECO_Weight_UP = max(Electron_RECO_Weight_UP * (event.Electron_RECO_SF[i] + event.Electron_RECO_SFerr[i]), Electron_RECO_Weight_UP * (event.Electron_RECO_SF[i] - event.Electron_RECO_SFerr[i]))
+                Electron_RECO_Weight_DOWN = min(Electron_RECO_Weight_DOWN * (event.Electron_RECO_SF[i] + event.Electron_RECO_SFerr[i]), Electron_RECO_Weight_DOWN * (event.Electron_RECO_SF[i] - event.Electron_RECO_SFerr[i]))
+            for i in loose_but_not_tight_electrons:
+                Electron_ID_Weight = Electron_ID_Weight * event.Electron_CutBased_VetoID_SF[i]
+                Electron_ID_Weight_UP = max(Electron_ID_Weight_UP * (event.Electron_CutBased_VetoID_SF[i] + event.Electron_CutBased_VetoID_SFerr[i]), Electron_ID_Weight * (event.Electron_CutBased_VetoID_SF[i] - event.Electron_CutBased_VetoID_SFerr[i]))
+                Electron_ID_Weight_DOWN = min(Electron_ID_Weight_DOWN * (event.Electron_CutBased_VetoID_SF[i] + event.Electron_CutBased_VetoID_SFerr[i]), Electron_ID_Weight * (event.Electron_CutBased_VetoID_SF[i] - event.Electron_CutBased_VetoID_SFerr[i]))
+                Electron_RECO_Weight = Electron_RECO_Weight * event.Electron_RECO_SF[i]
+                Electron_RECO_Weight_UP = max(Electron_RECO_Weight_UP * (event.Electron_RECO_SF[i] + event.Electron_RECO_SFerr[i]), Electron_RECO_Weight_UP * (event.Electron_RECO_SF[i] - event.Electron_RECO_SFerr[i]))
+                Electron_RECO_Weight_DOWN = min(Electron_RECO_Weight_DOWN * (event.Electron_RECO_SF[i] + event.Electron_RECO_SFerr[i]), Electron_RECO_Weight_DOWN * (event.Electron_RECO_SF[i] - event.Electron_RECO_SFerr[i]))
 
         # selection on photons, but not requirement on photon number in this module
         for i in range(0,len(photons)):
@@ -465,6 +510,8 @@ class FakePho_Producer(Module):
                 self.out.fillBranch("WZG_lepton3_eta", temp_zl2_p4.Eta())
                 self.out.fillBranch("WZG_lepton3_phi", temp_zl2_p4.Phi())
                 self.out.fillBranch("WZG_lepton3_mass", temp_zl2_p4.M())
+                self.out.fillBranch("WZG_photon_pfRelIso03_chg", photons[tight_photons[0]].pfRelIso03_chg)
+                self.out.fillBranch("WZG_photon_sieie", photons[tight_photons[0]].sieie)
                 self.out.fillBranch("WZG_photon_pt", photons[tight_photons[0]].pt)
                 self.out.fillBranch("WZG_photon_eta", photons[tight_photons[0]].eta)
                 self.out.fillBranch("WZG_photon_phi", photons[tight_photons[0]].phi)
