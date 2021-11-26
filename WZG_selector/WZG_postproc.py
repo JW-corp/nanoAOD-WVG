@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import os, sys
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
@@ -49,6 +48,8 @@ if args.isdata:
         jetmetCorrector = createJMECorrector(isMC=False, dataYear="UL2016_PreVFP", runPeriod=args.period, metBranchName="MET")
         Modules = [muonScaleRes2016a(),jetmetCorrector(),WZG_select_Module()]
 else:
+
+# add MCweight_Module.py false
     if args.year == '2018':
         jetmetCorrector = createJMECorrector(isMC=True, dataYear="UL2018", jesUncert="Total", metBranchName="MET", splitJER=False, applyHEMfix=True)
         Modules = [countHistogramsProducer(),muonScaleRes2018(),first_Template_Producer(),puAutoWeight_2018(),muonIDISOSF2018(),eleRECOSF2018(),eleIDSF2018(),jetmetCorrector(),WZG_select_Module()]

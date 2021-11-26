@@ -1,0 +1,11 @@
+rm -rf TTGJets_2018
+rm -rf TTWJetsToLNu_2018
+rm -rf TTZToLLNuNu_2018
+rm -rf WWW_2018
+rm -rf WWZ_2018
+rm -rf WZG_2018
+rm -rf ZGToLLG_2018
+rm -rf ZZZ_2018
+rm -rf ZZ_2018
+rm -rf ZZgg_2018
+rm -rf tZq_2018

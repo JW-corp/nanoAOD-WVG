@@ -1,0 +1,18 @@
+[
+{"name" :"/x6/cms/store/data/Run2018A/EGamma/NANOAOD/UL2018_MiniAODv1_NanoAODv2-v1/*/*.root","type":"Data","year":"2018"}
+,{"name":"/x6/cms/store/data/Run2018B/EGamma/NANOAOD/UL2018_MiniAODv1_NanoAODv2-v1/*/*.root","type":"Data","year":"2018"}
+,{"name":"/x6/cms/store/data/Run2018C/EGamma/NANOAOD/UL2018_MiniAODv1_NanoAODv2-v1/*/*.root","type":"Data","year":"2018"}
+,{"name":"/x6/cms/store/data/Run2018D/EGamma/NANOAOD/UL2018_MiniAODv1_NanoAODv2-v1/*/*.root","type":"Data","year":"2018"}
+,{"name":"/x6/cms/store/data/Run2018A/DoubleMuon/NANOAOD/UL2018_MiniAODv1_NanoAODv2-v1/*/*.root","type":"Data","year":"2018"}
+,{"name":"/x6/cms/store/data/Run2018B/DoubleMuon/NANOAOD/UL2018_MiniAODv1_NanoAODv2-v2/*/*.root","type":"Data","year":"2018"}
+,{"name":"/x6/cms/store/data/Run2018C/DoubleMuon/NANOAOD/UL2018_MiniAODv1_NanoAODv2-v1/*/*.root","type":"Data","year":"2018"}
+,{"name":"/x6/cms/store/data/Run2018D/DoubleMuon/NANOAOD/UL2018_MiniAODv1_NanoAODv2-v1/*/*.root","type":"Data","year":"2018"}
+,{"name":"/x6/cms/store/data/Run2018A/SingleMuon/NANOAOD/UL2018_MiniAODv1_NanoAODv2-v2/*/*.root","type":"Data","year":"2018"}
+,{"name":"/x6/cms/store/data/Run2018B/SingleMuon/NANOAOD/UL2018_MiniAODv1_NanoAODv2-v1/*/*.root","type":"Data","year":"2018"}
+,{"name":"/x6/cms/store/data/Run2018C/SingleMuon/NANOAOD/UL2018_MiniAODv1_NanoAODv2-v2/*/*.root","type":"Data","year":"2018"}
+,{"name":"/x6/cms/store/data/Run2018D/SingleMuon/NANOAOD/UL2018_MiniAODv1_NanoAODv2-v2/*/*.root","type":"Data","year":"2018"}
+,{"name":"/x6/cms/store/data/Run2018A/MuonEG/NANOAOD/UL2018_MiniAODv1_NanoAODv2-v1/*/*.root","type":"Data","year":"2018"}
+,{"name":"/x6/cms/store/data/Run2018B/MuonEG/NANOAOD/UL2018_MiniAODv1_NanoAODv2-v1/*/*.root","type":"Data","year":"2018"}
+,{"name":"/x6/cms/store/data/Run2018C/MuonEG/NANOAOD/UL2018_MiniAODv1_NanoAODv2-v1/*/*.root","type":"Data","year":"2018"}
+,{"name":"/x6/cms/store/data/Run2018D/MuonEG/NANOAOD/UL2018_MiniAODv1_NanoAODv2-v1/*/*.root","type":"Data","year":"2018"}
+]
