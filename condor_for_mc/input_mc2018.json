@@ -24,4 +24,6 @@
 ,{"name":"/x6/cms/store/mc/RunIISummer20UL18NanoAODv2/GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v15_L1v1-v1/*/*.root","type":"MC","year":"2018"}
 ,{"name":"/x6/cms/store/mc/RunIISummer20UL18NanoAODv2/GluGluToContinToZZTo4mu_TuneCP5_13TeV-mcfm701-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v15_L1v1-v1/*/*.root","type":"MC","year":"2018"}
 ,{"name":"/x6/cms/store/mc/RunIISummer20UL18NanoAODv2/GluGluToContinToZZTo4tau_TuneCP5_13TeV-mcfm701-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v15_L1v1-v1/*/*.root","type":"MC","year":"2018"}
+,{"name":"/x6/cms/store/mc/RunIISummer20UL18NanoAODv2/DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v15_L1v1-v1/*/*.root","type":"MC","year":"2018"}
+,{"name":"/x6/cms/store/mc/RunIISummer20UL18NanoAODv2/WJetsToLNu_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v15_L1v1-v1/*/*.root","type":"MC","year":"2018"}
 ]

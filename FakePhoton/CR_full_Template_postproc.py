@@ -9,6 +9,12 @@ from PhysicsTools.NanoAODTools.postprocessing.modules.jme.jetmetHelperRun2      
 from PhysicsTools.NanoAODTools.postprocessing.modules.common.PrefireCorr import *
 from PhysicsTools.NanoAODTools.postprocessing.modules.common.puWeightProducer import *
 
+from PhysicsTools.NanoAODTools.postprocessing.modules.eleRECOSFProducer import *
+from PhysicsTools.NanoAODTools.postprocessing.modules.eleIDSFProducer import *
+from PhysicsTools.NanoAODTools.postprocessing.modules.muonScaleResProducer import *
+from PhysicsTools.NanoAODTools.postprocessing.modules.muonIDISOSFProducer import *
+from PhysicsTools.NanoAODTools.postprocessing.modules.WZG_Module import *
+
 from CR_full_Template_Module import * 
 
 import argparse
@@ -23,6 +29,7 @@ parser.add_argument('-y', dest='year', default='2018', help='year')
 parser.add_argument('-d', dest='isdata',action='store_true',default=False)
 parser.add_argument('-p', dest='period',default="B", help="Run period, only work for data")
 parser.add_argument('-s', dest='preskim',default='', help="preskim json input")
+parser.add_argument('-dataset_name', dest='dataset_name',default="B", help="Run period, only work for data")
 args = parser.parse_args()
 
 # print ("mode: ", args.mode)
@@ -42,7 +49,8 @@ if args.isdata:
 else:
     if args.year == '2018':
         jetmetCorrector = createJMECorrector(isMC=True, dataYear="UL2018", jesUncert="Total", metBranchName="MET", splitJER=False, applyHEMfix=True)
-        Modules = [countHistogramsProducer(),jetmetCorrector(),CR_FakePhotonFullModule(),puWeight_2018()]
+        #Modules = [countHistogramsProducer(),jetmetCorrector(),CR_FakePhotonFullModule(),puWeight_2018()]
+        Modules = [countHistogramsProducer(),muonScaleRes2018(),first_Template_Producer(),puAutoWeight_2018(),muonIDISOSF2018(),eleRECOSF2018(),eleIDSF2018(),jetmetCorrector(),CR_FakePhotonFullModule()]
     if args.year == '2017':
         jetmetCorrector = createJMECorrector(isMC=True, dataYear="UL2017", jesUncert="Total", metBranchName="MET", splitJER=False)
         Modules = [countHistogramsProducer(),PrefCorr(),jetmetCorrector(),CR_FakePhotonFullModule(),puWeight_2017()]
@@ -78,7 +86,17 @@ if args.preskim:
 else:
     preselection = None
 
-p=PostProcessor(".",infilelist,
+
+# Check weather the output directory exists
+isExist = os.path.exists(args.dataset_name)
+
+# If not.. mkdir
+if not isExist:
+	os.makedirs(args.dataset_name)
+
+
+
+p=PostProcessor(args.dataset_name,infilelist,
                 branchsel="CR_full_keep_and_drop.txt",
                 cut=preselection,
                 modules=Modules,

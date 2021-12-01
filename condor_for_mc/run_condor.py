@@ -3,12 +3,12 @@ import argparse
 import re
 import optparse
 sys.path.append('..')
-import WZG_selector.DAS_filesearch as search
 import json
 
 
 parser = argparse.ArgumentParser(description='condor for postproc')
 parser.add_argument('-f', dest='file', default='', help='json file input')
+parser.add_argument('-isFake',type=bool, default=False, help='json file input')
 args = parser.parse_args()
 
 with open(args.file, "r") as f:
@@ -96,16 +96,34 @@ for dataset in jsons:
 			f.write("eval `scramv1 runtime -sh`\n")
 			f.write("echo $CMSSW_BASE\n\n")
 
+
+
 			# set NanoAOD tool and run jobs
-			f.write("cd PhysicsTools/NanoAODTools/nanoAOD-WVG/WZG_selector\n")
+			if args.isFake:
+				f.write("cd PhysicsTools/NanoAODTools/nanoAOD-WVG/FakePhoton\n")
+			else:
+				f.write("cd PhysicsTools/NanoAODTools/nanoAOD-WVG/WZG_selector\n")
 			f.write("[[ -d " + datasetname + " ]]" + " || " +  " mkdir " +  datasetname + "\n")
 
+
 			if isdata:
-				f.write("python WZG_postproc.py -f" + " " + filepath + " " + "-d" + " " +\
-				"-dataset_name" + " " + datasetname + " " +  "-p" + " " +  period + "\n")
+
+				if args.isFake:
+					f.write("python CR_full_Template_postproc.py -f" + " " + filepath + " " + "-d" + " " +\
+					"-dataset_name" + " " + datasetname + " " +  "-p" + " " +  period + "\n")
+
+				else:
+					f.write("python WZG_postproc.py -f" + " " + filepath + " " + "-d" + " " +\
+					"-dataset_name" + " " + datasetname + " " +  "-p" + " " +  period + "\n")
 			else:
-				f.write("python WZG_postproc.py -f" + " " + filepath + " " +\
-				"-dataset_name" + " " + datasetname + " " +  "-p" + " " +  period + "\n")
+
+				if args.isFake:
+					f.write("python CR_full_Template_postproc.py -f" + " " + filepath + " " +\
+					"-dataset_name" + " " + datasetname + " " +  "-p" + " " +  period + "\n")
+
+				else:
+					f.write("python WZG_postproc.py -f" + " " + filepath + " " +\
+					"-dataset_name" + " " + datasetname + " " +  "-p" + " " +  period + "\n")
 				
 		
 			f.write("cp " + datasetname + "/*.root ${initial_path}")

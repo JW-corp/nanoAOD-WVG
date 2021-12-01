@@ -1,6 +1,9 @@
 # Conmbined
 #python run_condor.py -f input_mc2018.json
-python run_condor.py -f input_data2018.json
+
+
+#python run_condor.py -f input_data2018.json -isFake True
+python run_condor.py -f input_mc2018.json -isFake True
 
 
 
